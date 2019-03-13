@@ -39,6 +39,20 @@ const ERR_BAD_NICK = "432",
       WHO_OLD = "354",
       WHO_END = "315";
 
+const flatten = function (arr, result = []) {
+    for (let i = 0, length = arr.length; i < length; i++) {
+    const value = arr[i];
+    if (Array.isArray(value)) {
+        flatten(value, result);
+    } else {
+        result.push(value);
+    }
+    }
+    return result;
+};
+
+var finalList = {};
+
 function IrcToActivityStreams(cfg) {
     const config = cfg || {};
     this.server = config.server;
@@ -47,6 +61,7 @@ function IrcToActivityStreams(cfg) {
     this.__buffer[NAMES] = {};
     return this;
 }
+
 
 IrcToActivityStreams.prototype.input = function (string) {
     debug(string);
@@ -211,9 +226,20 @@ IrcToActivityStreams.prototype.input = function (string) {
         delete this.__buffer[MOTD];
         break;
 
-        /** */
+        /** Build stream of users to object */
         case NAMES:  // user list
+        if (! finalList[channel]) {
+            finalList[channel] = [];
+        }
         if (! this.__buffer[NAMES][channel]) {
+            finalList.channel = this.__buffer[NAMES][channel];
+            finalList[channel].push(content.split(' '));
+        } 
+        
+        break;
+
+        /** Relay entire list once stream is complete */
+        case NAMES_END: // end user list
             this.__buffer[NAMES][channel] = {
                 '@type': 'observe',
                 actor: {
@@ -223,18 +249,13 @@ IrcToActivityStreams.prototype.input = function (string) {
                 },
                 object: {
                     '@type': 'attendance',
-                    members: content.split(' ')
+                    members: flatten(finalList[channel])
                 },
                 published: time
             };
-        } else {
-            this.__buffer[NAMES][channel].object.members.push(content.split(' '));
-        }
-        break;
-        case NAMES_END: // end user list
-        if (! this.__buffer[NAMES][channel]) { break; }
+    
         this.events.emit(EVENT_INCOMING, this.__buffer[NAMES][channel]);
-        delete this.__buffer[NAMES][channel];
+        delete finalList.channel;
         break;
 
         /** */

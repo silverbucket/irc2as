@@ -8,7 +8,7 @@
 :hitchcock.freenode.net 372 hyper_slvrbckt :-  
 :hitchcock.freenode.net 376 hyper_slvrbckt :End of /MOTD command.
 :hitchcock.freenode.net 315 hyper_slvrbckt undefined :End of /WHO list.
-:hitchcock.freenode.net 353 hyper_slvrbckt @ #kosmos-random :hyper_slvrbckt gregkare hal8000 botka raucao galfert
+:hitchcock.freenode.net 353 hyper_slvrbckt @ #kosmos-random :hyper_slvrbckt gregkare hal8000
 :hitchcock.freenode.net 366 hyper_slvrbckt #kosmos-random :End of /NAMES list.
 :hitchcock.freenode.net 352 hyper_slvrbckt #kosmos-random ~hyper_slv 154.65.34.210 hitchcock.freenode.net hyper_slvrbckt H :0 hyper_slvrbckt
 :adams.freenode.net 372 hyper_slvrbckt :-  

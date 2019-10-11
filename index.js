@@ -226,7 +226,8 @@ IrcToActivityStreams.prototype.input = function (string) {
         break;
 
         case MODE: // custom event indicating a channel mode has been updated, used to re-query user or channel
-        if (! pos2) { break; }
+        user_mode = pos2 || content;
+        if (! channel) { break; } // don't handle cases with no channel defined
         let target = {
             '@type': 'room',
             '@id': this.server + '/' + channel,
@@ -239,13 +240,13 @@ IrcToActivityStreams.prototype.input = function (string) {
                 displayName: pos3
             };
         }
-        MODE[pos2[1]] || 'member';
+        group = MODES[user_mode[1]] || 'member';
         let object = {
             '@type': 'presence',
             group: group
         };
         type = 'add';
-        if (pos2[0] === '-') {
+        if (user_mode[0] === '-') {
             type = 'remove';
         }
         nick = getNickFromServerString(server);
@@ -257,7 +258,8 @@ IrcToActivityStreams.prototype.input = function (string) {
                 displayName: nick
             },
             target: target,
-            object: object
+            object: object,
+            published: time
         });
         break;
 
@@ -480,7 +482,7 @@ IrcToActivityStreams.prototype.input = function (string) {
         case WHO_OLD:
         nick = (msg[3].length <= 2) ? msg[2] : msg[3];
         if (nick === 'undefined') { break; }
-        group = MODE[pos2[1]] || 'member';
+        group = MODES[pos2[1]] || 'member';
         this._sendPresence(nick, group, channel, time);
         break;
 

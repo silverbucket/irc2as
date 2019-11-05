@@ -14,10 +14,10 @@
 :adams.freenode.net 372 hyper_slvrbckt :-
 :adams.freenode.net 372 hyper_slvrbckt :-
 :adams.freenode.net 376 hyper_slvrbckt :End of /MOTD command.
-:hyper_slvrbckt MODE hyper_slvrbckt :+i
-:hyper_slvrbckt MODE #Finnish +o Kilroy
-:hyper_slvtbckt MODE #a_room +v a_user
-:hyper_slvtbckt MODE #some_room +h some_user
+:bob MODE hyper_slvrbckt :+i
+:alice MODE #Finnish +o Kilroy
+:bob MODE #room_a +v alice
+:alice MODE #room_b +h bob
 PING :moon.freenode.net
 :adams.freenode.net 352 hyper_slvrbckt * ~undefined 75-140-253-250.dhcp.ftwo.tx.charter.com livingstone.freenode.net undefined H :0 undefined
 :adams.freenode.net 315 hyper_slvrbckt undefined :End of /WHO list.

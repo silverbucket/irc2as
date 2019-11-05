@@ -228,33 +228,38 @@ IrcToActivityStreams.prototype.input = function (string) {
         case MODE: // custom event indicating a channel mode has been updated, used to re-query user or channel
         user_mode = pos2 || content;
         if (! channel) { break; } // don't handle cases with no channel defined
-        let actor = {
-            '@type': 'room',
-            '@id': this.server + '/' + channel,
-            displayName: channel
-        };
-        let target = actor;
-        if (pos3) {
-            target = {
-                '@type': 'person',
-                '@id': pos3 + '@' + this.server,
-                displayName: pos3
-            };
-        }
+        if (! pos3) { break; } // we need target user
+        nick = getNickFromServerString(server);
         group = MODES[user_mode[1]] || 'member';
-        let object = {
-            '@type': 'presence',
-            group: group
-        };
         type = 'add';
         if (user_mode[0] === '-') {
             type = 'remove';
         }
         this.events.emit(EVENT_INCOMING, {
             '@type': type,
-            actor: actor,
-            target: target,
-            object: object,
+            actor: {
+                '@type': 'person',
+                '@id': nick + '@' + this.server,
+                displayName: nick
+            },
+            target: {
+                '@type': 'person',
+                '@id': pos3 + '@' + this.server,
+                displayName: pos3
+            },
+            object: {
+                "@type": "relationship",
+                "relationship": 'operator',
+                "subject": {
+                    '@type': 'presence',
+                    group: group
+                },
+                "object": {
+                    '@type': 'room',
+                    '@id': this.server + '/' + channel,
+                    displayName: channel
+                }
+            },
             published: time
         });
         break;

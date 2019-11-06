@@ -40,7 +40,7 @@ const ERR_BAD_NICK = "432",
       WHO_OLD = "354",
       WHO_END = "315";
 
-const GROUP = {
+const ROLE = {
     '@': 'owner',
     '%': 'admin',
     '*': 'participant'
@@ -66,7 +66,7 @@ function IrcToActivityStreams(cfg) {
     return this;
 }
 
-IrcToActivityStreams.prototype._sendPresence = function (username, group, channel, time) {
+IrcToActivityStreams.prototype._sendPresence = function (username, role, channel, time) {
     this.events.emit(EVENT_INCOMING, {
         '@type': 'update',
         actor: {
@@ -81,7 +81,7 @@ IrcToActivityStreams.prototype._sendPresence = function (username, group, channe
         },
         object: {
             '@type': 'presence',
-            group: group
+            role: role
         },
         published: time
     });
@@ -104,7 +104,7 @@ IrcToActivityStreams.prototype.input = function (string) {
     const channel = ((typeof pos1 === "string") && (pos1.startsWith('#'))) ? pos1 :
                     ((typeof pos2 === "string") && (pos2.startsWith('#'))) ? pos2 :
                     ((typeof pos3 === "string") && (pos3.startsWith('#'))) ? pos3 : undefined;
-    let nick, type, message, group;
+    let nick, type, message, role;
 
     if (metadata === PING) {
         this.events.emit(EVENT_PING, time);
@@ -230,7 +230,7 @@ IrcToActivityStreams.prototype.input = function (string) {
         if (! channel) { break; } // don't handle cases with no channel defined
         if (! pos3) { break; } // we need target user
         nick = getNickFromServerString(server);
-        group = MODES[user_mode[1]] || 'member';
+        role = MODES[user_mode[1]] || 'member';
         type = 'add';
         if (user_mode[0] === '-') {
             type = 'remove';
@@ -249,10 +249,10 @@ IrcToActivityStreams.prototype.input = function (string) {
             },
             object: {
                 "@type": "relationship",
-                "relationship": 'operator',
+                "relationship": 'role',
                 "subject": {
                     '@type': 'presence',
-                    group: group
+                    role: role
                 },
                 "object": {
                     '@type': 'room',
@@ -293,13 +293,13 @@ IrcToActivityStreams.prototype.input = function (string) {
         /** */
         case NAMES:  // user list
         for (let entry of content.split(' ')) {
-            group = 'member';
+            role = 'member';
             let username = entry;
-            if (GROUP[entry[0]]) {
+            if (ROLE[entry[0]]) {
                 username = entry.substr(1);
-                group = GROUP[entry[0]];
+                role = ROLE[entry[0]];
             }
-            this._sendPresence(username, group, channel, time);
+            this._sendPresence(username, role, channel, time);
         }
         break;
 
@@ -483,8 +483,8 @@ IrcToActivityStreams.prototype.input = function (string) {
         case WHO_OLD:
         nick = (msg[3].length <= 2) ? msg[2] : msg[3];
         if (nick === 'undefined') { break; }
-        group = MODES[pos2[1]] || 'member';
-        this._sendPresence(nick, group, channel, time);
+        role = MODES[pos2[1]] || 'member';
+        this._sendPresence(nick, role, channel, time);
         break;
 
         /** */
